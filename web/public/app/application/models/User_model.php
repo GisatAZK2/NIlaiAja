@@ -5,32 +5,36 @@ class User_model extends CI_Model {
     private $_table = "users";
 
     public function ambil_data(){
-        $this->db->select('users.*, jurusan.nama_jurusan');
-        $this->db->from($this->_table);
-        $this->db->join('jurusan', 'jurusan.id_jurusan = users.id_jurusan', 'left');
-        return $this->db->get()->result_array();
+        return $this->db->get($this->_table)->result_array();
     }
 
-    public function login($user, $pass){
+    public function login($user)
+    {
         $this->db->where('name', $user);
-        $this->db->where('password', $pass);
-        return $this->db->get($this->_table)->num_rows();
-    }
-    
-
-    public function get_all_users()
-    {
-        return $this->db->get('users')->result();
+        $this->db->where('role', 'admin');
+        return $this->db->get($this->_table)->row();
     }
 
-    public function get_user_by_id($id)
-    {
-        return $this->db->where('id', $id)->get('users')->row();
+    public function getbyid($iduser){
+        return $this->db->get_where($this->_table, ['id' => $iduser])->result();
+    }
+
+    public function total_user() {
+        return $this->db->count_all($this->_table);
+    }
+
+    public function get_all_users() {
+        return $this->db->get($this->_table)->result();
+    }
+
+    public function get_user_by_id($id) {
+        return $this->db->where('id', $id)->get($this->_table)->row();
     }
 
     public function insert_user($data)
     {
-        $this->db->insert('users', $data);
+        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+        $this->db->insert($this->_table, $data);
         return $this->db->insert_id();
     }
 
@@ -43,6 +47,11 @@ class User_model extends CI_Model {
     public function update_session($session_id, $user_id)
     {
         $this->db->where('session_id', $session_id)->update('sessions', ['user_id' => $user_id]);
+    }
+
+    public function update_session_full($session_id, $data)
+    {
+        $this->db->where('session_id', $session_id)->update('sessions', $data);
     }
 
     public function get_session($session_id)

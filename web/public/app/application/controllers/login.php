@@ -6,7 +6,7 @@ class Login extends CI_Controller {
     public function __construct(){
         parent::__construct();
         $this->load->library(['form_validation', 'session']);
-        $this->load->helper('url'); 
+        $this->load->helper('url');
         $this->load->model('User_model');
     }
 
@@ -23,27 +23,24 @@ class Login extends CI_Controller {
     }
 
     public function proses_login()
-    {
-       
-        $username = $this->input->post('username');
-        $password = $this->input->post('password');
+{
+    $username = $this->input->post('username');
+    $password = $this->input->post('password');
 
-        $ceklogin = $this->User_model->Login($username, $password);
+    // Ambil user berdasarkan username dan role admin
+    $user = $this->User_model->login($username);
 
-        if ($ceklogin > 0) {
-            $user = $this->db->get_where('users',['name'=>$username,'password'=>$password])->row_array();
-            $datalogin=['iduser'=>$user['id']];
-            $this->session->set_userdata($datalogin);
-            redirect('dashboard');
-        } else {
-            echo "<h4 style='text-align: center; color: red;'>Login Gagal: Username atau Password salah</h4>";
-        }
+    if ($user && password_verify($password, $user->password)) {
+        $this->session->set_userdata(['iduser' => $user->id]);
+        redirect('dashboard');
+    } else {
+        $this->session->set_flashdata('login_error', 'Username, Password, atau Role salah!');
+        redirect('login');
     }
+}
 
     public function logout(){
         $this->session->unset_userdata('iduser');
         redirect('login');
     }
-
-   
 }

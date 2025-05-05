@@ -10,7 +10,6 @@ class DataUser extends CI_Controller
         $this->load->helper('url');
         $this->load->model('User_model');
 
-        // Set JSON response header
         header('Content-Type: application/json');
     }
 
@@ -18,13 +17,11 @@ class DataUser extends CI_Controller
     {
         $method = $_SERVER['REQUEST_METHOD'];
 
-        // / (root)
         if (empty($segments)) {
             return $method === 'GET' ? $this->get_users() :
                    ($method === 'POST' ? $this->create_user() : $this->method_not_allowed());
         }
 
-        // /session
         if ($segments[0] === 'session') {
             if (count($segments) === 1 && $method === 'POST') {
                 return $this->guest_session();
@@ -68,14 +65,70 @@ class DataUser extends CI_Controller
 
     private function guest_session()
     {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $session_id = isset($input['session_id']) ? $input['session_id'] : null;
+
+        if ($session_id) {
+            $session = $this->User_model->get_session($session_id);
+
+            if ($session) {
+                $session->access_count += 1;
+
+                if ($session->access_count >= 5 && !$session->user_id) {
+                    // Auto-create user
+                    $guest_name = 'Guest_' . substr(md5($session_id), 0, 6);
+                    $guest_data = [
+                        'name' => $guest_name,
+                        'email' => $guest_name . '@guest.local',
+                        'password' => uniqid(),
+                        'birth_date' => '2000-01-01',
+                        'gender' => 'Laki-laki',
+                        'role' => 'student'
+                    ];
+
+                    $user_id = $this->User_model->insert_user($guest_data);
+
+                    $this->User_model->update_session_full($session_id, [
+                        'access_count' => $session->access_count,
+                        'user_id' => $user_id
+                    ]);
+
+                    echo json_encode([
+                        'message' => 'Guest limit reached. User created.',
+                        'user_id' => $user_id,
+                        'session_id' => $session_id
+                    ]);
+                    return;
+                } else {
+                    $this->User_model->update_session_full($session_id, [
+                        'access_count' => $session->access_count
+                    ]);
+
+                    echo json_encode([
+                        'message' => 'Access count increased',
+                        'access_count' => $session->access_count,
+                        'session_id' => $session_id
+                    ]);
+                    return;
+                }
+            }
+        }
+
+        // Session belum ada, buat baru
         $session_id = uniqid('sess_', true);
         $session_data = [
             'session_id' => $session_id,
+            'access_count' => 1,
             'created_at' => date('Y-m-d H:i:s')
         ];
 
         $this->User_model->insert_session($session_data);
-        echo json_encode(['session_id' => $session_id]);
+
+        echo json_encode([
+            'message' => 'New session created',
+            'session_id' => $session_id,
+            'access_count' => 1
+        ]);
     }
 
     private function get_session($id)

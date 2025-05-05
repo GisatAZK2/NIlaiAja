@@ -29,6 +29,9 @@ def predict():
         tingkat_motivasi = int(data['tingkat_motivasi'])
         pertemanan = int(data['pertemanan'])
 
+        # Batasi nilai ujian sebelumnya maksimal 100
+        nilai_ujian = min(nilai_ujian, 100)
+
         # Transformasi input
         subject_encoded = encoder.transform([[mata_pelajaran]])
         numerical_features = np.array([
@@ -43,8 +46,9 @@ def predict():
         # Gabungkan semua fitur
         X_input = np.hstack([subject_encoded, numerical_features])
 
-        # Prediksi
+        # Prediksi dan batasi nilai prediksi maksimal 100
         prediksi = model.predict(X_input)[0]
+        prediksi = np.clip(prediksi, 0, 100)
 
         return jsonify({
             "prediksi_nilai": round(prediksi, 2)

@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login - Dashboard</title>
+  <title>NilaiAja Admin - Login</title>
   <link rel="shortcut icon" href="<?= base_url('assets/ikan.png'); ?>" type="image/x-icon">
   <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap.min.css'); ?>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <style>
     :root {
-      --primary-color: #6366f1;
+      --primary-color: #564a5b;
       --ilus         : #3D4F6C;
-      --primary-hover: #4f46e5;
+      --primary-hover:#8d3f38;
       --dark-color: #1e293b;
       --light-color: #f8fafc;
       --sidebar-width: 280px;
@@ -147,7 +147,28 @@
       }
     }
   </style>
+
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<?php if ($this->session->flashdata('login_error')): ?>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem('firstLogin') !== 'true') {
+      sessionStorage.setItem('firstLogin', 'true');
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Gagal!',
+        text: '<?= $this->session->flashdata("login_error") ?>',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#d33'
+      });
+    }
+  });
+</script>
+<?php endif; ?>
+
 <body>
   <div class="login-container">
     <div class="row g-0">
@@ -201,9 +222,6 @@
               <button type="submit" class="btn btn-login btn-primary w-100 rounded-pill fw-medium py-2">
                 Sign In <i class="bi bi-arrow-right-short"></i>
               </button>
-              
-              
-        
             </form>
           </div>
         </div>
