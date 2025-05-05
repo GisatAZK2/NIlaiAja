@@ -5,17 +5,10 @@
                     <div>
                         <h2 class="fw-bold mb-1">Dashboard</h2>
                         <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                            </ol>
+                    
                         </nav>
                     </div>
-                    <div>
-                        <button class="btn btn-primary">
-                            <i class="bi bi-plus-circle me-2"></i> Add New
-                        </button>
-                    </div>
+                    
                 </div>
                 <?php foreach ($user as $datauser): ?>
                 <!-- Stats Cards -->

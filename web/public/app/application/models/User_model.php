@@ -40,27 +40,27 @@ class User_model extends CI_Model {
 
     public function insert_session($session_data)
     {
-        $this->db->insert('sessions', $session_data);
+        $this->db->insert('guest_sessions', $session_data);
         return $this->db->insert_id();
     }
 
     public function update_session($session_id, $user_id)
     {
-        $this->db->where('session_id', $session_id)->update('sessions', ['user_id' => $user_id]);
+        $this->db->where('session_id', $session_id)->update('guest_sessions', ['user_id' => $user_id]);
     }
 
     public function update_session_full($session_id, $data)
     {
-        $this->db->where('session_id', $session_id)->update('sessions', $data);
+        $this->db->where('session_id', $session_id)->update('guest_sessions', $data);
     }
 
     public function get_session($session_id)
     {
-        return $this->db->where('session_id', $session_id)->get('sessions')->row();
+        return $this->db->where('session_id', $session_id)->get('guest_sessions')->row();
     }
 
     public function delete_session($session_id)
     {
-        $this->db->where('session_id', $session_id)->delete('sessions');
+        $this->db->where('session_id', $session_id)->delete('guest_sessions');
     }
 }

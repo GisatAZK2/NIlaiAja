@@ -19,9 +19,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?= ($active_menu == 'courses') ? 'active' : '' ?>" href="<?= site_url('courses') ?>">
+                <a class="nav-link <?= ($active_menu == 'subject') ? 'active' : '' ?>" href="<?= site_url('Subject') ?>">
                     <i class="bi bi-journal-text"></i>
-                    <span>Courses</span>
+                    <span>Subject</span>
                 </a>
             </li>
             <li class="nav-item">

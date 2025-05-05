@@ -23,8 +23,9 @@ class DataUser extends CI_Controller
         }
 
         if ($segments[0] === 'session') {
-            if (count($segments) === 1 && $method === 'POST') {
-                return $this->guest_session();
+            if (count($segments) === 1) {
+                return $method === 'POST' ? $this->guest_session() : 
+                       ($method === 'GET' ? $this->list_sessions() : $this->method_not_allowed());
             }
 
             if (isset($segments[1])) {
@@ -48,6 +49,12 @@ class DataUser extends CI_Controller
     {
         $users = $this->User_model->get_all_users();
         echo json_encode($users);
+    }
+
+    private function list_sessions()
+    {
+        $sessions = $this->User_model->get_all_sessions();
+        echo json_encode($sessions);
     }
 
     private function create_user()
@@ -114,7 +121,7 @@ class DataUser extends CI_Controller
             }
         }
 
-        // Session belum ada, buat baru
+        // Create new session
         $session_id = uniqid('sess_', true);
         $session_data = [
             'session_id' => $session_id,
@@ -144,8 +151,13 @@ class DataUser extends CI_Controller
 
     private function delete_session($id)
     {
-        $this->User_model->delete_session($id);
-        echo json_encode(['message' => 'Session deleted']);
+        $result = $this->User_model->delete_session($id);
+        if ($result) {
+            echo json_encode(['message' => 'Session deleted']);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Session not found']);
+        }
     }
 
     private function link_user_to_session($id)
@@ -157,8 +169,13 @@ class DataUser extends CI_Controller
             return;
         }
 
-        $this->User_model->update_session($id, $data['user_id']);
-        echo json_encode(['message' => 'User linked to session']);
+        $result = $this->User_model->update_session($id, $data['user_id']);
+        if ($result) {
+            echo json_encode(['message' => 'User linked to session']);
+        } else {
+            http_response_code(404);
+            echo json_encode(['error' => 'Session not found']);
+        }
     }
 
     private function method_not_allowed()
